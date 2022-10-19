@@ -1,19 +1,23 @@
 <!DOCTYPE html>
-<html lang="en" ng-app="myApp">
+<html lang="en" ng-app="dictionaryApp">
     <head>
         <meta charset="UTF-8" />
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>ACS Foundation</title>
-        <!-- CSS only -->
+        <!-- Bootstrap CSS -->
         <link
             href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css"
             rel="stylesheet"
             integrity="sha384-Zenh87qX5JnK2Jl0vWa8Ck2rdkQ2Bzep5IDxbcnCeuOxjzrPF/et3URy9Bv1WTRi"
             crossorigin="anonymous"
         />
+
+        <!-- AngularJS -->
         <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.6/angular.min.js"></script>
         <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.6/angular-sanitize.js"></script>
+
+        <!-- Metawidget -->
         <script
             src="http://metawidget.org/js/3.5/metawidget-core.min.js"
             type="text/javascript"
@@ -25,7 +29,7 @@
 
         <script type="text/javascript">
             angular
-                .module("myApp", ["metawidget", "ngSanitize"])
+                .module("dictionaryApp", ["metawidget", "ngSanitize"])
                 .controller("myController", function ($scope, $sce) {
                     var user = {
                         name: "",
@@ -36,6 +40,26 @@
                         word: "",
                     };
 
+                    // all entries required to be filled
+                    $scope.metawidgetConfig = {
+                        inspector: new metawidget.inspector.JsonSchemaInspector( {
+							properties: {
+                                name: {
+                                    type: "string",
+                                    required: true,
+                                },
+                                email: {
+                                    type: "string",
+                                    required: true,
+                                },
+								word: {
+                                    type: "string",
+									required: true,
+							}
+                        }
+						} )
+                    };
+
                     $scope.search = function () {
                         console.log($scope.entry);
                         fetch(
@@ -43,6 +67,7 @@
                         )
                             .then((response) => response.json())
                             .then((data) => {
+                                //create html with response
                                 $scope.definition = `<div class="result">
                                     <h3 class="word">${data[0].word}</h3>
                                     <div class="details">
@@ -53,46 +78,74 @@
                                 </div>`;
                             })
                             .then(() => {
+                                // after response recieved, bind view as a trusted html
                                 $scope.trustedHtml = $sce.trustAsHtml(
                                     $scope.definition
                                 );
+                                // update view bindings
                                 $scope.$apply();
                             });
                     };
                 });
         </script>
         <style>
+            .page-title{
+                margin-top: 10px;
+                letter-spacing: 4px;
+            }
             #metawidget button {
                 margin: 10px auto 0px;
-                float: right;
+                float: left;
                 margin-bottom: 10px;
             }
+         
             #table-entryUser-label {
                 display: none;
             }
-
-            #table-entryUser-row {
-                display: flex;
-                flex-direction: column;
-            }
-            #table-entryWord-row {
-                display: flex;
-            }
+            
             #table-entryWord-label-cell {
                 margin-right: 4px;
+            }  
+            * {
+                font-family: sans-serif;
+                color: #002b36;
+                
             }
+            input {
+                border: none;
+                border-bottom: 1.5px solid #002b36;
+                background-color: #fdf6e3;
+            }
+            .definition {
+                padding-bottom: 5px;
+            }
+            button {
+                background-color: #002b36;
+                color: #fdf6e3;
+                border: none;
+                border-radius: 5px;
+                padding: 5px;
+                width: 100%;
+            }
+            .background {
+                background-color: #002b36;
+            }
+            .card {
+                background-color: #fdf6e3;
+            }
+            
         </style>
     </head>
-    <body class="bg-secondary" ng-controller="myController">
+    <body class="background" ng-controller="myController">
         <div class="container p-5">
-            <div class="container rounded bg-light">
-                <h1>Dictionary</h1>
-                <metawidget id="metawidget" ng-model="entry">
-                    <button class="btn btn-secondary" ng-click="search()">
+            <div class="card container rounded">
+                <h1 class="page-title">Dictionary</h1>
+                <metawidget id="metawidget" ng-model="entry" config="metawidgetConfig">
+                    <button ng-click="search()">
                         Search
                     </button>
                 </metawidget>
-                <div ng-bind-html="definition"></div>
+                <div class="definition" ng-bind-html="definition"></div>
             </div>
         </div>
     </body>
