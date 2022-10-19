@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <title>Contact Us</title>
+        <script
+            src="https://metawidget.sourceforge.net/js/4.2/metawidget-core.min.js"
+            type="text/javascript"
+        ></script>
+        <script type="text/javascript">
+            var person = {
+                name: "Homer Simpson",
+                email: "tran.ue15@gmail.com",
+                phone: 40,
+            };
+        </script>
+    </head>
+
+    <div id="app"></div>
+
+    <body>
+        <div id="metawidget"></div>
+        <script type="text/javascript">
+            var mw = new metawidget.Metawidget(
+                document.getElementById("metawidget"),
+                {
+                    inspector: new metawidget.inspector.CompositeInspector([
+                        new metawidget.inspector.PropertyTypeInspector(),
+                        function (toInspect, type, names) {
+                            return {
+                                properties: {
+                                    name: {
+                                        required: true,
+                                    },
+                                    Message: {
+                                        type: "string",
+                                        large: true,
+                                    },
+                                    employer: {
+                                        type: "string",
+                                        section: "Work",
+                                    },
+                                    department: {
+                                        type: "string",
+                                    },
+                                },
+                            };
+                        },
+                    ]),
+                    layout: new metawidget.layout.HeadingTagLayoutDecorator(
+                        new metawidget.layout.TableLayout({
+                            numberOfColumns: 2,
+                        })
+                    ),
+                }
+            );
+            mw.toInspect = person;
+            mw.buildWidgets();
+        </script>
+    </body>
+</html>
