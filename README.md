@@ -11,4 +11,4 @@ To use:
 -   Name must be filled
 -   Email must be filled
 -   Word must be filled
-    \*\* Invalid words will not yield result
+    .\* Invalid words will not yield result
