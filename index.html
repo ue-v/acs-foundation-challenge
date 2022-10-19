@@ -1,61 +1,99 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" ng-app="myApp">
     <head>
         <meta charset="UTF-8" />
-        <title>Contact Us</title>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>ACS Foundation</title>
+        <!-- CSS only -->
+        <link
+            href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css"
+            rel="stylesheet"
+            integrity="sha384-Zenh87qX5JnK2Jl0vWa8Ck2rdkQ2Bzep5IDxbcnCeuOxjzrPF/et3URy9Bv1WTRi"
+            crossorigin="anonymous"
+        />
+        <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.6/angular.min.js"></script>
+        <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.6/angular-sanitize.js"></script>
         <script
-            src="https://metawidget.sourceforge.net/js/4.2/metawidget-core.min.js"
+            src="http://metawidget.org/js/3.5/metawidget-core.min.js"
             type="text/javascript"
         ></script>
+        <script
+            src="http://metawidget.org/js/3.5/metawidget-angular.min.js"
+            type="text/javascript"
+        ></script>
+
         <script type="text/javascript">
-            var person = {
-                name: "Homer Simpson",
-                email: "tran.ue15@gmail.com",
-                phone: 40,
-            };
+            angular
+                .module("myApp", ["metawidget", "ngSanitize"])
+                .controller("myController", function ($scope, $sce) {
+                    var user = {
+                        name: "",
+                        email: "",
+                    };
+                    $scope.entry = {
+                        user: user,
+                        word: "",
+                    };
+
+                    $scope.search = function () {
+                        console.log($scope.entry);
+                        fetch(
+                            `https://api.dictionaryapi.dev/api/v2/entries/en/${$scope.entry.word}`
+                        )
+                            .then((response) => response.json())
+                            .then((data) => {
+                                $scope.definition = `<div class="result">
+                                    <h3 class="word">${data[0].word}</h3>
+                                    <div class="details">
+                                        <p>${data[0].meanings[0].partOfSpeech}</p>
+                                        <p>${data[0].phonetic}</p>
+                                    </div>
+                                    <p class="definition">${data[0].meanings[0].definitions[0].definition}</p>
+                                </div>`;
+                            })
+                            .then(() => {
+                                $scope.trustedHtml = $sce.trustAsHtml(
+                                    $scope.definition
+                                );
+                                $scope.$apply();
+                            });
+                    };
+                });
         </script>
+        <style>
+            #metawidget button {
+                margin: 10px auto 0px;
+                float: right;
+                margin-bottom: 10px;
+            }
+            #table-entryUser-label {
+                display: none;
+            }
+
+            #table-entryUser-row {
+                display: flex;
+                flex-direction: column;
+            }
+            #table-entryWord-row {
+                display: flex;
+            }
+            #table-entryWord-label-cell {
+                margin-right: 4px;
+            }
+        </style>
     </head>
-
-    <div id="app"></div>
-
-    <body>
-        <div id="metawidget"></div>
-        <script type="text/javascript">
-            var mw = new metawidget.Metawidget(
-                document.getElementById("metawidget"),
-                {
-                    inspector: new metawidget.inspector.CompositeInspector([
-                        new metawidget.inspector.PropertyTypeInspector(),
-                        function (toInspect, type, names) {
-                            return {
-                                properties: {
-                                    name: {
-                                        required: true,
-                                    },
-                                    Message: {
-                                        type: "string",
-                                        large: true,
-                                    },
-                                    employer: {
-                                        type: "string",
-                                        section: "Work",
-                                    },
-                                    department: {
-                                        type: "string",
-                                    },
-                                },
-                            };
-                        },
-                    ]),
-                    layout: new metawidget.layout.HeadingTagLayoutDecorator(
-                        new metawidget.layout.TableLayout({
-                            numberOfColumns: 2,
-                        })
-                    ),
-                }
-            );
-            mw.toInspect = person;
-            mw.buildWidgets();
-        </script>
+    <body class="bg-secondary" ng-controller="myController">
+        <div class="container p-5">
+            <div class="container rounded bg-light">
+                <h1>Dictionary</h1>
+                <metawidget id="metawidget" ng-model="entry">
+                    <button class="btn btn-secondary" ng-click="search()">
+                        Search
+                    </button>
+                </metawidget>
+                <div ng-bind-html="definition"></div>
+            </div>
+        </div>
     </body>
 </html>
