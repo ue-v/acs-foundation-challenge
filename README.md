@@ -1,4 +1,4 @@
-# acs-foundation-challenge
+# dictionary-spa
 
 ## Author
 
